@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>Eventext v1.8 - Prezentuj tekst</title>
+    <style>
+        body{margin:0;background:#000;overflow:hidden;font-family: 'Segoe UI', sans-serif}
+        #panel{position:fixed;top:10px;left:10px;padding:15px;background:rgba(15,15,15,0.92);color:#eee;
+               border-radius:12px;border:1px solid #333; z-index:10;min-width:280px; max-height: 90vh; overflow-y: auto;
+               box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(8px);}
+        #panel.hidden{display:none}
+        .top-controls{position:fixed;top:10px;right:10px;z-index:11;display:flex;gap:8px;}
+        button{padding:10px 16px;border-radius:8px;background:#252525;color:#eee;border:1px solid #444;cursor:pointer;transition:0.2s}
+        button:hover{background:#00ffff; color:#000; border-color:#00ffff}
+        label{display:block;margin-top:10px;font-size: 10px;color:#00ffff;text-transform: uppercase;letter-spacing: 1.5px;font-weight:bold}
+        input, select{width:100%;margin-top:5px;background:#050505;color:#fff;border:1px solid #333;padding:8px;border-radius:4px;box-sizing: border-box;}
+        input[type="range"]{padding:0; accent-color: #00ffff;}
+        h3{margin:0 0 15px 0; color:#fff; font-size:16px; text-align:center; border-bottom:1px solid #333; padding-bottom:10px}
+        .hint{font-size: 10px; color: #666; font-weight: normal; text-transform: none; margin-top: 2px;}
+    </style>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+        "three/examples/jsm/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+      }
+    }
+    </script>
+</head>
+<body>
+
+<div class="top-controls">
+    <button id="fsBtn">Pełny Ekran</button>
+    <button id="togglePanel">Ukryj Panel</button>
+</div>
+
+<div id="panel">
+    <h3>EVENTEXT v1.8</h3>
+    
+    <label>Treść tekstu:</label>
+    <input id="textInput" value="EVENTEXT">
+
+    <label>Materiał:</label>
+    <select id="materialInput">
+        <option value="custom_metal">★ Własny Metal (Wybierz kolor)</option>
+        <option value="chrome">Lustrzany Chrom</option>
+        <option value="gold">Szczotkowane Złoto</option>
+        <option value="wood">Słoje Drewna (Wybierz kolor)</option>
+        <option value="plastic">Błyszczący Plastik</option>
+        <option value="neon">Neonowy Blask</option>
+    </select>
+
+    <label id="colorLabel">Kolor materiału:</label>
+    <input id="colorInput" type="color" value="#00ffff">
+    <div class="hint">* Kolor ignorowany dla Chromu i Złota</div>
+
+    <label>Jasność (Ekspozycja):</label>
+    <input id="exposureInput" type="range" min="0.5" max="5" step="0.1" value="2.5">
+
+    <label>Szybkość obrotu:</label>
+    <input id="speedInput" type="range" min="0" max="0.05" step="0.001" value="0.01">
+
+    <label>Rozmiar / Grubość:</label>
+    <input id="sizeInput" type="range" min="0.5" max="5" step="0.1" value="2.2">
+    <input id="depthInput" type="range" min="0.1" max="2" step="0.05" value="0.6">
+
+    <button id="resetBtn" style="margin-top:20px; width:100%; background:#200; border-color:#500">Resetuj wszystko</button>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
+
+let scene, camera, renderer, controls, textMesh, font;
+const ids = ["textInput","sizeInput","depthInput","speedInput","colorInput","materialInput","exposureInput"];
+
+// --- PROCEDURALNA TEKSTURA DREWNA ---
+function createWoodTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512; canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 80; i++) {
+        ctx.beginPath();
+        let y = i * 8;
+        ctx.moveTo(0, y);
+        for (let x = 0; x < 512; x += 10) {
+            ctx.lineTo(x, y + Math.sin(x * 0.03) * 4 + Math.random() * 2);
+        }
+        ctx.stroke();
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+}
+const woodTexture = createWoodTexture();
+
+function init() {
+    scene = new THREE.Scene();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    document.body.appendChild(renderer.domElement);
+
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 12);
+    controls = new OrbitControls(camera, renderer.domElement);
+
+    // Panele świetlne
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    const pGeom = new THREE.BoxGeometry(30, 30, 1);
+    const pMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    const p1 = new THREE.Mesh(pGeom, pMat); p1.position.set(0, 25, 0); p1.rotation.x = Math.PI/2; envScene.add(p1);
+    const p2 = new THREE.Mesh(pGeom, pMat); p2.position.set(0, 0, 25); envScene.add(p2);
+    scene.environment = pmremGenerator.fromScene(envScene).texture;
+
+    const loader = new FontLoader();
+    loader.load("https://threejs.org/examples/fonts/helvetiker_bold.typeface.json", f => { 
+        font = f; loadSettings(); updateExposure(); createText(); 
+    });
+
+    ids.forEach(id => document.getElementById(id).addEventListener("input", () => {
+        if(id === "exposureInput") updateExposure();
+        createText();
+    }));
+
+    window.addEventListener("resize", onResize);
+    document.getElementById("togglePanel").addEventListener("click", togglePanel);
+    document.getElementById("fsBtn").addEventListener("click", toggleFullscreen);
+    document.getElementById("resetBtn").addEventListener("click", clearSettings);
+    animate();
+}
+
+function updateExposure() { renderer.toneMappingExposure = parseFloat(document.getElementById("exposureInput").value); }
+
+function createText() {
+    if (!font) return;
+    saveSettings();
+    const v = (id) => document.getElementById(id).value;
+    const matType = v("materialInput");
+    
+    if (textMesh) { scene.remove(textMesh); textMesh.geometry.dispose(); }
+
+    const geometry = new TextGeometry(v("textInput") || " ", {
+        font: font, size: parseFloat(v("sizeInput")), height: parseFloat(v("depthInput")),
+        curveSegments: 20, bevelEnabled: true, bevelThickness: 0.12, bevelSize: 0.06, bevelSegments: 10
+    });
+    geometry.center();
+
+    let matProps = { color: v("colorInput"), metalness: 0.0, roughness: 0.5, envMapIntensity: 1.0, emissive: "#000000" };
+
+    switch(matType) {
+        case "custom_metal":
+            matProps.metalness = 1.0; matProps.roughness = 0.1; matProps.envMapIntensity = 4.0; break;
+        case "chrome":
+            matProps.color = "#ffffff"; matProps.metalness = 1.0; matProps.roughness = 0.02; matProps.envMapIntensity = 5.0; break;
+        case "gold":
+            matProps.color = "#ffcc33"; matProps.metalness = 1.0; matProps.roughness = 0.2; matProps.envMapIntensity = 3.0; break;
+        case "wood":
+            matProps.map = woodTexture; matProps.roughness = 0.8; break;
+        case "neon":
+            matProps.emissive = v("colorInput"); matProps.roughness = 1.0; break;
+        default: // plastic
+            matProps.roughness = 0.1; break;
+    }
+
+    textMesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial(matProps));
+    scene.add(textMesh);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    if (textMesh) textMesh.rotation.y += parseFloat(document.getElementById("speedInput").value);
+    controls.update();
+    renderer.render(scene, camera);
+}
+
+function saveSettings() {
+    const settings = {};
+    ids.forEach(id => { settings[id] = document.getElementById(id).value; });
+    localStorage.setItem('eventext_v18_settings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const saved = localStorage.getItem('eventext_v18_settings');
+    if (saved) {
+        const settings = JSON.parse(saved);
+        ids.forEach(id => { if (settings[id]) document.getElementById(id).value = settings[id]; });
+    }
+}
+
+function clearSettings() { localStorage.removeItem('eventext_v18_settings'); location.reload(); }
+function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+function togglePanel() { const p = document.getElementById("panel"); const hidden = p.classList.toggle("hidden"); document.getElementById("togglePanel").textContent = hidden ? "Pokaż" : "Ukryj"; }
+function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+
+init();
+</script>
+</body>
+</html>
