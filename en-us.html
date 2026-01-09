@@ -200,7 +200,7 @@ function loadSettings() {
 
 function clearSettings() { localStorage.removeItem('eventext_v18_settings'); location.reload(); }
 function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-function togglePanel() { const p = document.getElementById("panel"); const hidden = p.classList.toggle("hidden"); document.getElementById("togglePanel").textContent = hidden ? "Pokaż" : "Ukryj"; }
+function togglePanel() { const p = document.getElementById("panel"); const hidden = p.classList.toggle("hidden"); document.getElementById("togglePanel").textContent = hidden ? "Show" : "Hide"; }
 function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 
 init();
@@ -208,3 +208,4 @@ init();
 </body>
 
 </html>
+
