@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="utf-8">
-    <title>Eventext v1.8 - Prezentuj tekst</title>
+    <title>Eventext v1.8.1 - Prezentuj tekst</title>
     <style>
         body{margin:0;background:#000;overflow:hidden;font-family: 'Segoe UI', sans-serif}
         #panel{position:fixed;top:10px;left:10px;padding:15px;background:rgba(15,15,15,0.92);color:#eee;
@@ -36,7 +36,7 @@
 </div>
 
 <div id="panel">
-    <h3>EVENTEXT v1.8</h3>
+    <h3>EVENTEXT v1.8.1</h3>
     
     <label>Treść tekstu:</label>
     <input id="textInput" value="EVENTEXT">
@@ -124,7 +124,7 @@ function init() {
     scene.environment = pmremGenerator.fromScene(envScene).texture;
 
     const loader = new FontLoader();
-    loader.load("https://threejs.org/examples/fonts/helvetiker_bold.typeface.json", f => { 
+    loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/gentilis_bold.typeface.json", f => { 
         font = f; loadSettings(); updateExposure(); createText(); 
     });
 
@@ -207,3 +207,4 @@ init();
 </script>
 </body>
 </html>
+
