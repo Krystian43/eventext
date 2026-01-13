@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Eventext v1.8 - Showcase text</title>
+    <title>Eventext v1.8.1 - Showcase text</title>
 	<meta name="description" content="Showcase your text."/>
     <meta name="keywords" content="Krystian Jarecki, text, event, rotating, animation, Torio Labs"/>
 	<meta name="author" content="Krystian Jarecki"/>
-	<meta name="og:title" content="Eventext v1.8 - Showcase text"/>
+	<meta name="og:title" content="Eventext v1.8.1 - Showcase text"/>
     <meta name="og:description" content="Showcase your text."/>
     <style>
         body{margin:0;background:#000;overflow:hidden;font-family: 'Segoe UI', sans-serif}
@@ -41,7 +41,7 @@
 </div>
 
 <div id="panel">
-    <h3>EVENTEXT v1.8</h3>
+    <h3>EVENTEXT v1.8.1</h3>
     
     <label>Text content:</label>
     <input id="textInput" value="EVENTEXT">
@@ -189,21 +189,40 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+function clearSettings() {
+    // Usuwanie ze wsparciem wstecznym
+    const keys = ['eventext_v18_settings', 'eventext_v17_settings', 'eventext_v16_settings', 'eventext_pro_settings'];
+    keys.forEach(key => localStorage.removeItem(key));
+    localStorage.clear(); 
+
+    window.location.href = window.location.pathname + "?reset=" + Date.now();
+}
+
 function saveSettings() {
     const settings = {};
-    ids.forEach(id => { settings[id] = document.getElementById(id).value; });
+    ids.forEach(id => { 
+        const el = document.getElementById(id);
+        if (el) settings[id] = el.value; 
+    });
     localStorage.setItem('eventext_v18_settings', JSON.stringify(settings));
 }
 
 function loadSettings() {
+    // Jeśli reset się nie uda, ignoruj zapis
+    if (window.location.search.includes("reset")) return;
+
     const saved = localStorage.getItem('eventext_v18_settings');
     if (saved) {
         const settings = JSON.parse(saved);
-        ids.forEach(id => { if (settings[id]) document.getElementById(id).value = settings[id]; });
+        ids.forEach(id => { 
+            const el = document.getElementById(id);
+            if (settings[id] !== undefined && el) {
+                el.value = settings[id];
+            }
+        });
     }
 }
 
-function clearSettings() { localStorage.removeItem('eventext_v18_settings'); location.reload(); }
 function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 function togglePanel() { const p = document.getElementById("panel"); const hidden = p.classList.toggle("hidden"); document.getElementById("togglePanel").textContent = hidden ? "Show" : "Hide"; }
 function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
@@ -213,6 +232,7 @@ init();
 </body>
 
 </html>
+
 
 
 
