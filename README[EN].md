@@ -13,5 +13,3 @@ features:
 * scene brightnes
 * rotation speed
 * size and thicknes
-<br>
-This is build using artificial inteligence. If you see your code here you can open new issue and i will mention you as project contributor.
