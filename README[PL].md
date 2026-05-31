@@ -13,5 +13,3 @@ Projekt zawiera:
 * dostosowywanie prędkości obrotu
 * dostosowywanie koloru
 * dostosowywanie wielkości i grubości
-<br>
-Projekt został napisany przy użyciu sztucznej inteligencji. Jeśli gdzieś widzisz swój kod napisz w sekcji issues a dodam cię jako współtwórcę lub wzmienie twoją nazwę tutaj.
