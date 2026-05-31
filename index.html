@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="utf-8">
-    <title>Eventext v1.8.1 - Prezentuj tekst</title>
+    <title data-i18n="page_title">Eventext v1.8.1 - Prezentuj tekst</title>
 	<meta name="description" content="Prezentuj tekst godnie."/>
     <meta name="keywords" content="Krystian Jarecki, tekst, event, obrotowy, animacje, Torio Labs"/>
 	<meta name="author" content="Krystian Jarecki"/>
@@ -36,42 +36,44 @@
 <body>
 
 <div class="top-controls">
-    <button id="fsBtn">Pełny Ekran</button>
-    <button id="togglePanel">Ukryj Panel</button>
+    <button onclick="toggleLanguage()" id="langBtn">🇬🇧 EN</button>
+    <button id="fsBtn" data-i18n="btn_fullscreen">Pełny Ekran</button>
+    <button id="togglePanel" data-i18n="btn_panel_hide">Ukryj Panel</button>
 </div>
 
 <div id="panel">
     <h3>EVENTEXT v1.8.1</h3>
     
-    <label>Treść tekstu:</label>
+    <label data-i18n="lbl_text_content">Treść tekstu:</label>
     <input id="textInput" value="EVENTEXT">
 
-    <label>Materiał:</label>
+    <label data-i18n="lbl_material">Materiał:</label>
     <select id="materialInput">
-        <option value="custom_metal">★ Własny Metal (Wybierz kolor)</option>
-        <option value="chrome">Lustrzany Chrom</option>
-        <option value="gold">Szczotkowane Złoto</option>
-        <option value="wood">Słoje Drewna (Wybierz kolor)</option>
-        <option value="plastic">Błyszczący Plastik</option>
-        <option value="neon">Neonowy Blask</option>
+        <option value="custom_metal" data-i18n="mat_custom_metal">★ Własny Metal (Wybierz kolor)</option>
+        <option value="chrome" data-i18n="mat_chrome">Lustrzany Chrom</option>
+        <option value="gold" data-i18n="mat_gold">Szczotkowane Złoto</option>
+        <option value="wood" data-i18n="mat_wood">Słoje Drewna (Wybierz kolor)</option>
+        <option value="plastic" data-i18n="mat_plastic">Błyszczący Plastik</option>
+        <option value="neon" data-i18n="mat_neon">Neonowy Blask</option>
     </select>
 
-    <label id="colorLabel">Kolor materiału:</label>
+    <label id="colorLabel" data-i18n="lbl_color">Kolor materiału:</label>
     <input id="colorInput" type="color" value="#00ffff">
-    <div class="hint">* Kolor ignorowany dla Chromu i Złota</div>
+    <div class="hint" id="colorHint" data-i18n="hint_color">* Kolor ignorowany dla Chromu i Złota</div>
 
-    <label>Jasność (Ekspozycja):</label>
+    <label data-i18n="lbl_exposure">Jasność (Ekspozycja):</label>
     <input id="exposureInput" type="range" min="0.5" max="5" step="0.1" value="2.5">
 
-    <label>Szybkość obrotu:</label>
+    <label data-i18n="lbl_speed">Szybkość obrotu:</label>
     <input id="speedInput" type="range" min="0" max="0.05" step="0.001" value="0.01">
 
-    <label>Rozmiar:</label>
+    <label data-i18n="lbl_size">Rozmiar:</label>
     <input id="sizeInput" type="range" min="0.5" max="5" step="0.1" value="2.2">
-	<label>Grubość:</label>
+	
+    <label data-i18n="lbl_thickness">Grubość:</label>
     <input id="depthInput" type="range" min="0.1" max="2" step="0.05" value="0.6">
 
-    <button id="resetBtn" style="margin-top:20px; width:100%; background:blue; border-color:#500">Resetuj wszystko</button>
+    <button id="resetBtn" data-i18n="btn_reset" style="margin-top:20px; width:100%; background:blue; border-color:#500">Resetuj wszystko</button>
 </div>
 
 <script type="module">
@@ -82,6 +84,96 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 
 let scene, camera, renderer, controls, textMesh, font;
 const ids = ["textInput","sizeInput","depthInput","speedInput","colorInput","materialInput","exposureInput"];
+
+// --- SŁOWNIK I18N ---
+const translations = {
+    pl: {
+        page_title: "Eventext v1.8.1 - Prezentuj tekst",
+        btn_fullscreen: "Pełny Ekran",
+        btn_panel_hide: "Ukryj Panel",
+        btn_panel_show: "Pokaż",
+        lbl_text_content: "Treść tekstu:",
+        lbl_material: "Materiał:",
+        mat_custom_metal: "★ Własny Metal (Wybierz kolor)",
+        mat_chrome: "Lustrzany Chrom",
+        mat_gold: "Szczotkowane Złoto",
+        mat_wood: "Słoje Drewna (Wybierz kolor)",
+        mat_plastic: "Błyszczący Plastik",
+        mat_neon: "Neonowy Blask",
+        lbl_color: "Kolor materiału:",
+        hint_color: "* Kolor ignorowany dla Chromu i Złota",
+        lbl_exposure: "Jasność (Ekspozycja):",
+        lbl_speed: "Szybkość obrotu:",
+        lbl_size: "Rozmiar:",
+        lbl_thickness: "Grubość:",
+        btn_reset: "Resetuj wszystko"
+    },
+    en: {
+        page_title: "Eventext v1.8.1 - Showcase text",
+        btn_fullscreen: "Full screen",
+        btn_panel_hide: "Hide Panel",
+        btn_panel_show: "Show",
+        lbl_text_content: "Text content:",
+        lbl_material: "Material:",
+        mat_custom_metal: "★ Custom Metal (choose color)",
+        mat_chrome: "Reflective Chrome",
+        mat_gold: "Gold",
+        mat_wood: "Wood (choose color)",
+        mat_plastic: "Plastic",
+        mat_neon: "Neon (glowing text)",
+        lbl_color: "Material color:",
+        hint_color: "* Color is disabled for chrome and gold",
+        lbl_exposure: "Brightness (exposure):",
+        lbl_speed: "Rotation speed:",
+        lbl_size: "Size:",
+        lbl_thickness: "Thickness:",
+        btn_reset: "Reset settings"
+    }
+};
+
+window.setLanguage = function(lang) {
+    document.documentElement.lang = lang;
+    
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            if (element.tagName === "TITLE") {
+                document.title = translations[lang][key];
+            } else {
+                element.textContent = translations[lang][key];
+            }
+        }
+    });
+
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) {
+        langBtn.textContent = lang === 'pl' ? '🇬🇧 EN' : '🇵🇱 PL';
+    }
+
+    // Aktualizacja tekstu przycisku panelu w zależności od jego widoczności
+    const p = document.getElementById("panel");
+    const toggleBtn = document.getElementById("togglePanel");
+    if (p && toggleBtn) {
+        const isHidden = p.classList.contains("hidden");
+        toggleBtn.textContent = isHidden ? translations[lang]["btn_panel_show"] : translations[lang]["btn_panel_hide"];
+    }
+}
+
+window.toggleLanguage = function() {
+    const currentLang = document.documentElement.lang === 'pl' ? 'pl' : 'en';
+    const newLang = currentLang === 'pl' ? 'en' : 'pl';
+    window.setLanguage(newLang);
+    localStorage.setItem('eventext_lang', newLang);
+}
+
+function initLanguage() {
+    if (window.location.search.includes("reset")) {
+        localStorage.removeItem('eventext_lang');
+    }
+    const savedLang = localStorage.getItem('eventext_lang');
+    const browserLang = navigator.language.search('pl') > -1 ? 'pl' : 'en';
+    window.setLanguage(savedLang || browserLang);
+}
 
 // --- PROCEDURALNA TEKSTURA DREWNA ---
 function createWoodTexture() {
@@ -108,6 +200,9 @@ function createWoodTexture() {
 const woodTexture = createWoodTexture();
 
 function init() {
+    // Inicjalizacja języka przed załadowaniem fontów
+    initLanguage();
+
     scene = new THREE.Scene();
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -129,6 +224,7 @@ function init() {
     scene.environment = pmremGenerator.fromScene(envScene).texture;
 
     const loader = new FontLoader();
+    // Użycie fontu gentilis_bold, który wspiera podstawowe znaki (lub helvetiker z poprzedniej wersji)
     loader.load("https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/gentilis_bold.typeface.json", f => { 
         font = f; loadSettings(); updateExposure(); createText(); 
     });
@@ -190,8 +286,7 @@ function animate() {
 }
 
 function clearSettings() {
-    // Usuwanie ze wsparciem wstecznym
-    const keys = ['eventext_v18_settings', 'eventext_v17_settings', 'eventext_v16_settings', 'eventext_pro_settings'];
+    const keys = ['eventext_v18_settings', 'eventext_v17_settings', 'eventext_v16_settings', 'eventext_pro_settings', 'eventext_lang'];
     keys.forEach(key => localStorage.removeItem(key));
     localStorage.clear(); 
 
@@ -208,7 +303,6 @@ function saveSettings() {
 }
 
 function loadSettings() {
-    // Jeśli reset się nie uda, ignoruj zapis
     if (window.location.search.includes("reset")) return;
 
     const saved = localStorage.getItem('eventext_v18_settings');
@@ -224,14 +318,17 @@ function loadSettings() {
 }
 
 function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
-function togglePanel() { const p = document.getElementById("panel"); const hidden = p.classList.toggle("hidden"); document.getElementById("togglePanel").textContent = hidden ? "Pokaż" : "Ukryj"; }
+
+function togglePanel() { 
+    const p = document.getElementById("panel"); 
+    const hidden = p.classList.toggle("hidden"); 
+    const currentLang = document.documentElement.lang === 'pl' ? 'pl' : 'en';
+    document.getElementById("togglePanel").textContent = hidden ? translations[currentLang]["btn_panel_show"] : translations[currentLang]["btn_panel_hide"]; 
+}
+
 function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 
 init();
 </script>
 </body>
 </html>
-
-
-
-
